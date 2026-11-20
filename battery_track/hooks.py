@@ -154,6 +154,12 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
+# Fixtures: custom fields we add to ERPNext doctypes are exported into the app
+# (battery_track/fixtures/custom_field.json) and re-created on any site where the app is installed.
+fixtures = [
+	{"dt": "Custom Field", "filters": [["module", "=", "Battery Track"]]},
+]
+
 doc_events = {
 	# Pack traceability: runs after ERPNext's own Stock Entry logic
 	"Stock Entry": {

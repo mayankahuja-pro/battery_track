@@ -126,6 +126,42 @@ def create_customer():
 	print(f"Created Customer {name}")
 
 
+API_USER = "scanner@example.com"
+
+
+def create_api_user():
+	"""Create an API user with only the roles it needs, and print a fresh key + secret.
+
+	Run: bench --site arb.localhost execute battery_track.setup.test_data.create_api_user
+	Running it again gives a NEW secret (the old one stops working).
+	"""
+	if not frappe.db.exists("User", API_USER):
+		user = frappe.get_doc(
+			{
+				"doctype": "User",
+				"email": API_USER,
+				"first_name": "Warehouse Scanner",
+				"send_welcome_email": 0,
+				"user_type": "System User",
+				# least privilege: Sales User to create orders, Stock User to scan
+				"roles": [{"role": "Sales User"}, {"role": "Stock User"}],
+			}
+		)
+		user.insert(ignore_permissions=True)
+
+	user = frappe.get_doc("User", API_USER)
+	if not user.api_key:
+		user.api_key = frappe.generate_hash(length=15)
+	api_secret = frappe.generate_hash(length=15)
+	user.api_secret = api_secret  # stored encrypted (Password field)
+	user.save(ignore_permissions=True)
+	frappe.db.commit()
+
+	print(f"api_key    = {user.api_key}")
+	print(f"api_secret = {api_secret}")
+	print(f'Header: "Authorization: token {user.api_key}:{api_secret}"')
+
+
 def check():
 	"""Print what exists, so we can verify quickly."""
 	print("Warehouses:", frappe.get_all("Warehouse", filters={"is_group": 0}, pluck="name"))
