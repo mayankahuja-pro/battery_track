@@ -5,3 +5,5 @@
 tags
 node_modules
 __pycache__
+# personal interview notes (not for the public repo)
+notes.md
