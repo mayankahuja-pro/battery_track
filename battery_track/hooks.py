@@ -154,13 +154,14 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	# Pack traceability: runs after ERPNext's own Stock Entry logic
+	"Stock Entry": {
+		"before_submit": "battery_track.events.stock_entry.before_submit",
+		"on_submit": "battery_track.events.stock_entry.on_submit",
+		"on_cancel": "battery_track.events.stock_entry.on_cancel",
+	}
+}
 
 # Scheduled Tasks
 # ---------------
