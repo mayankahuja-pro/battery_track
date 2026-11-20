@@ -44,6 +44,31 @@ def create_purchase_receipt():
 	print(f"Submitted {pr.name}, grand total {pr.grand_total}")
 
 
+def receive_cells(start=21, count=12, rate=250):
+	"""Receive more cells (e.g. to build another pack for a demo).
+
+	bench --site arb.localhost execute battery_track.setup.stock_in.receive_cells --kwargs "{'start': 21, 'count': 12}"
+	"""
+	serials = [f"CELL-{i:04d}" for i in range(start, start + count)]
+	if frappe.db.exists("Serial No", serials[0]):
+		print(f"{serials[0]} already exists, skipping")
+		return
+
+	pr = frappe.get_doc(
+		{
+			"doctype": "Purchase Receipt",
+			"company": COMPANY,
+			"supplier": SUPPLIER,
+			"set_warehouse": STORES,
+			"items": [{"item_code": "CELL-32V", "qty": count, "rate": rate, "serial_no": "\n".join(serials)}],
+		}
+	)
+	pr.insert()
+	pr.submit()
+	frappe.db.commit()
+	print(f"Submitted {pr.name}: {serials[0]} .. {serials[-1]}")
+
+
 def check():
 	"""Show serial status and stock balance in Stores."""
 	serials = frappe.get_all(

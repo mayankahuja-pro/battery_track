@@ -122,6 +122,24 @@ The checks run in this order. The first one that fails is returned:
 
 Open `/app/query-report/Battery Trace` (or search "Battery Trace" in the awesome bar) and filter by pack serial. It shows the pack's current status; the build details (Work Order, Stock Entry, date); the BMS and all 16 cell serials; and the Sales Order, customer, scan details and Delivery Note. Every value links to its document.
 
+## Scanner app (Flutter)
+
+`scanner_app/` is a small Flutter app for the warehouse: log in (site URL, API key and secret), enter a Sales Order, then scan pack barcodes with the camera (`mobile_scanner`) or type them in. A USB barcode gun works through the text box too. Each scan calls `scan_pack` and shows a large ✅ or ❌ with the server's message. All checks run on the server; the app only displays the result.
+
+```bash
+cd scanner_app
+flutter pub get
+flutter run -d chrome --web-port 5000
+```
+
+For the web build, allow the app's origin on the site:
+
+```bash
+bench --site <site> set-config allow_cors '["http://localhost:5000"]' --parse
+```
+
+`scanner_app/test_barcodes/index.html` has QR codes for testing (one valid pack and three error cases). The app also builds for Android. Its manifest already includes the INTERNET permission and allows cleartext HTTP for local testing.
+
 ## Screenshots
 
 | | |
@@ -144,6 +162,7 @@ battery_track/
 ├── battery_track/report/battery_trace/
 ├── fixtures/custom_field.json   # Sales Order.external_order_id
 └── setup/                       # test data scripts (test_data, stock_in, manufacture)
+scanner_app/                     # Flutter scanner (lib/api.dart + 3 screens)
 ```
 
 ## Known limitations
