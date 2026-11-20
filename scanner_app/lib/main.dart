@@ -21,6 +21,8 @@ class BatteryScannerApp extends StatelessWidget {
       title: 'Battery Scanner',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorSchemeSeed: Colors.green, useMaterial3: true),
+      darkTheme: ThemeData(colorSchemeSeed: Colors.green, useMaterial3: true, brightness: Brightness.dark),
+      themeMode: ThemeMode.system, // follow the phone's light / dark setting
       // already logged in -> go straight to the order screen
       home: api == null ? const LoginScreen() : OrderScreen(api: api!),
     );

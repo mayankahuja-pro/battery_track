@@ -20,6 +20,8 @@ class _OrderScreenState extends State<OrderScreen> {
 
   Future<void> _open() async {
     final name = _order.text.trim().toUpperCase();
+    if (name.isEmpty) return;
+
     setState(() {
       _loading = true;
       _error = null;
@@ -30,12 +32,16 @@ class _OrderScreenState extends State<OrderScreen> {
     if (!mounted) return;
     setState(() => _loading = false);
 
+    if (result.authError) {
+      goToLogin(context, message: result.message);
+      return;
+    }
     if (!result.ok) {
       setState(() => _error = result.message);
       return;
     }
     if (result.data['docstatus'] != 1) {
-      setState(() => _error = 'Sales Order $name is not submitted');
+      setState(() => _error = 'Sales Order $name is not submitted yet');
       return;
     }
 
@@ -44,10 +50,25 @@ class _OrderScreenState extends State<OrderScreen> {
     ));
   }
 
-  Future<void> _logout() async {
-    await ErpApi.logout();
-    if (!mounted) return;
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
+  Future<void> _confirmLogout() async {
+    final yes = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout?'),
+        content: const Text('The saved API key and secret will be removed from this device.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Logout')),
+        ],
+      ),
+    );
+    if (yes == true && mounted) goToLogin(context);
+  }
+
+  @override
+  void dispose() {
+    _order.dispose();
+    super.dispose();
   }
 
   @override
@@ -55,30 +76,40 @@ class _OrderScreenState extends State<OrderScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pick for Sales Order'),
-        actions: [IconButton(onPressed: _logout, icon: const Icon(Icons.logout), tooltip: 'Logout')],
+        actions: [IconButton(onPressed: _confirmLogout, icon: const Icon(Icons.logout), tooltip: 'Logout')],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Text('Connected to ${widget.api.baseUrl}', style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _order,
-            decoration: const InputDecoration(labelText: 'Sales Order', border: OutlineInputBorder()),
-            textCapitalization: TextCapitalization.characters,
-            onSubmitted: (_) => _open(),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            shrinkWrap: true,
+            children: [
+              Text('Connected to ${widget.api.baseUrl}', style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _order,
+                decoration: const InputDecoration(labelText: 'Sales Order', border: OutlineInputBorder()),
+                textCapitalization: TextCapitalization.characters,
+                autocorrect: false,
+                onSubmitted: (_) => _open(),
+              ),
+              const SizedBox(height: 20),
+              FilledButton.icon(
+                onPressed: _loading ? null : _open,
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                icon: _loading
+                    ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.qr_code_scanner),
+                label: const Text('Start Scanning'),
+              ),
+              if (_error != null) ...[
+                const SizedBox(height: 16),
+                Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              ],
+            ],
           ),
-          const SizedBox(height: 20),
-          FilledButton.icon(
-            onPressed: _loading ? null : _open,
-            icon: const Icon(Icons.qr_code_scanner),
-            label: const Text('Start Scanning'),
-          ),
-          if (_error != null) ...[
-            const SizedBox(height: 16),
-            Text(_error!, style: const TextStyle(color: Colors.red)),
-          ],
-        ],
+        ),
       ),
     );
   }

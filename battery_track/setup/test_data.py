@@ -162,6 +162,19 @@ def create_api_user():
 	print(f'Header: "Authorization: token {user.api_key}:{api_secret}"')
 
 
+def set_api_user_password(password="Scanner@2026"):
+	"""Give the scanner user a password, for the app's ID/password login.
+
+	Run: bench --site arb.localhost execute battery_track.setup.test_data.set_api_user_password
+	Demo password only: change it in a real setup.
+	"""
+	from frappe.utils.password import update_password
+
+	update_password(API_USER, password)  # stored hashed, never in plain text
+	frappe.db.commit()
+	print(f"Password set for {API_USER}")
+
+
 def check():
 	"""Print what exists, so we can verify quickly."""
 	print("Warehouses:", frappe.get_all("Warehouse", filters={"is_group": 0}, pluck="name"))

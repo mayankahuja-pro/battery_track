@@ -9,9 +9,53 @@ import json
 
 import frappe
 from frappe import _
+from frappe.auth import validate_ip_address
+from frappe.rate_limiter import rate_limit
+from frappe.twofactor import should_run_2fa
 from frappe.utils import add_days, now_datetime, nowdate
 
 from battery_track.setup.test_data import COMPANY, FINISHED_GOODS
+
+
+# ---------------------------------------------------------------------------
+# 0. App login (username + password -> API key/secret)
+# ---------------------------------------------------------------------------
+@frappe.whitelist(allow_guest=True, methods=["POST"])  # guest: the user is not logged in yet
+@rate_limit(limit=5, seconds=60)  # max 5 tries per minute per IP: slows down password guessing
+def app_login(usr, pwd):
+	"""Scanner app login. Checks the password, then returns the user's API key + secret.
+
+	The app then uses token auth for every call, the same as before.
+	Why not a normal session cookie? Cookies across sites (web app) and on mobile need extra
+	handling (SameSite, CSRF token). A token works the same everywhere.
+	"""
+	# Frappe's own password check: also counts failed attempts and locks the user after too many.
+	# On a wrong password it writes an Authentication Log and raises AuthenticationError (HTTP 401).
+	login_manager = frappe.local.login_manager
+	login_manager.authenticate(usr, pwd)
+	user = login_manager.user
+
+	# Safety rules before we hand out a long-lived key
+	if user == "Administrator":
+		frappe.throw(_("Administrator cannot use the scanner app. Use a warehouse user."), frappe.PermissionError)
+	if should_run_2fa(user):
+		# this endpoint would skip the OTP step, so 2FA users must not log in here
+		frappe.throw(_("Two-factor login is on for this user. Ask admin for API keys instead."), frappe.PermissionError)
+	if "Stock User" not in frappe.get_roles(user):
+		frappe.throw(_("User {0} needs the Stock User role to scan").format(user), frappe.PermissionError)
+	validate_ip_address(user)  # respects "Restrict IP" on the User, if set
+
+	user_doc = frappe.get_doc("User", user)
+	api_secret = user_doc.get_password("api_secret", raise_exception=False)  # stored encrypted
+
+	# first login from the app: create key + secret (later logins reuse them, so other devices keep working)
+	if not user_doc.api_key or not api_secret:
+		user_doc.api_key = user_doc.api_key or frappe.generate_hash(length=15)
+		api_secret = frappe.generate_hash(length=15)
+		user_doc.api_secret = api_secret
+		user_doc.save(ignore_permissions=True)  # guest request: the user can't have "write" on User yet
+
+	return {"api_key": user_doc.api_key, "api_secret": api_secret, "full_name": user_doc.full_name}
 
 
 # ---------------------------------------------------------------------------
@@ -153,6 +197,45 @@ def validate_scan(sales_order, serial_no):
 	return True, _("{0} OK ({1}/{2} scanned for {3})").format(
 		serial_no, scanned_qty + 1, int(ordered_qty), item_code
 	), item_code
+
+
+@frappe.whitelist()  # GET is fine: this only reads data
+def get_scan_progress(sales_order):
+	"""How many of each item are ordered vs scanned, for the scanner app's progress bar.
+
+	Returns {"items": [{"item_code", "item_name", "ordered", "scanned"}], "complete": bool}
+	"""
+	frappe.has_permission("Sales Order", "read", doc=sales_order, throw=True)
+
+	# ordered qty per item (an item can be on more than one row, so add them up)
+	ordered = {}
+	names = {}
+	for row in frappe.get_all(
+		"Sales Order Item",
+		filters={"parent": sales_order},
+		fields=["item_code", "item_name", "stock_qty"],
+		order_by="idx asc",
+	):
+		ordered[row.item_code] = ordered.get(row.item_code, 0) + row.stock_qty
+		names[row.item_code] = row.item_name
+
+	# successful scans per item for this order
+	scanned = {}
+	for item_code in frappe.get_all(
+		"Scan Log", filters={"sales_order": sales_order, "result": "Success"}, pluck="item_code"
+	):
+		scanned[item_code] = scanned.get(item_code, 0) + 1
+
+	items = [
+		{
+			"item_code": code,
+			"item_name": names[code],
+			"ordered": int(qty),
+			"scanned": scanned.get(code, 0),
+		}
+		for code, qty in ordered.items()
+	]
+	return {"items": items, "complete": all(i["scanned"] >= i["ordered"] for i in items)}
 
 
 def get_ordered_qty(sales_order, item_code):

@@ -124,13 +124,30 @@ Open `/app/query-report/Battery Trace` (or search "Battery Trace" in the awesome
 
 ## Scanner app (Flutter)
 
-`scanner_app/` is a small Flutter app for the warehouse: log in (site URL, API key and secret), enter a Sales Order, then scan pack barcodes with the camera (`mobile_scanner`) or type them in. A USB barcode gun works through the text box too. Each scan calls `scan_pack` and shows a large ✅ or ❌ with the server's message. All checks run on the server; the app only displays the result.
+`scanner_app/` is a Flutter app for the warehouse. A worker logs in with a username and password, enters a Sales Order, and scans pack barcodes with the camera (`mobile_scanner`) or a USB barcode gun. Each scan calls `scan_pack`. All checks run on the server; the app only shows the result.
+
+**Login.** `battery_track.api.app_login` checks the password with Frappe's own `LoginManager.authenticate` (failed-attempt lockout, Authentication Log), then returns the user's API key and secret. The app stores only that token, encrypted with `flutter_secure_storage`; the password is never stored. The endpoint is rate-limited (5 tries per minute per IP), accepts POST only, and refuses Administrator, users with two-factor auth, and users without the Stock User role.
+
+**Reliability.**
+- An HTTP 401 (key regenerated or revoked) logs the user out. A 403 only shows the message.
+- Read-only calls retry once on a network error. `scan_pack` never retries: if the reply was lost, a retry would answer "already scanned" and show a false ❌.
+- Plain `http://` is accepted only for localhost and private-network addresses.
+
+**Warehouse UX.**
+- A distinct sound and vibration for ✅ and ❌, so the worker does not need to watch the screen.
+- Ordered-vs-scanned progress per item, from `get_scan_progress`.
+- A torch toggle and dark mode.
+- After each scan the text box is focused again, ready for the next scan from a barcode gun.
 
 ```bash
 cd scanner_app
 flutter pub get
 flutter run -d chrome --web-port 5000
+# release build with the server address fixed (staff never type it):
+flutter build apk --dart-define=ERP_URL=https://erp.yourcompany.com
 ```
+
+Demo user: run `bench --site <site> execute battery_track.setup.test_data.create_api_user`, then `...test_data.set_api_user_password`. This logs in `scanner@example.com` with the demo password set in that function; change it for any real use.
 
 For the web build, allow the app's origin on the site:
 
