@@ -166,7 +166,12 @@ doc_events = {
 		"before_submit": "battery_track.events.stock_entry.before_submit",
 		"on_submit": "battery_track.events.stock_entry.on_submit",
 		"on_cancel": "battery_track.events.stock_entry.on_cancel",
-	}
+	},
+	# Dispatch rule: only scanned packs can be delivered
+	"Delivery Note": {
+		"before_validate": "battery_track.events.delivery_note.before_validate",
+		"before_submit": "battery_track.events.delivery_note.before_submit",
+	},
 }
 
 # Scheduled Tasks
