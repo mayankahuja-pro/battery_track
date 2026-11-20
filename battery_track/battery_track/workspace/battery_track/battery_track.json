@@ -1,0 +1,372 @@
+{
+ "charts": [
+  {
+   "chart_name": "Daily Scans",
+   "label": "Daily Scans"
+  },
+  {
+   "chart_name": "Packs Built Per Week",
+   "label": "Packs Built Per Week"
+  },
+  {
+   "chart_name": "Scan Results",
+   "label": "Scan Results"
+  },
+  {
+   "chart_name": "Pack Status",
+   "label": "Pack Status"
+  },
+  {
+   "chart_name": "Scans By User",
+   "label": "Scans By User"
+  },
+  {
+   "chart_name": "Cell Status",
+   "label": "Cell Status"
+  }
+ ],
+ "content": "[{\"id\": \"dec0fe2b91\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Battery Track Hero\", \"col\": 12}}, {\"id\": \"0fc0f999c5\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"0d66f8d44a\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>\\ud83d\\udcca Live Numbers</b></span>\", \"col\": 12}}, {\"id\": \"9e57878000\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Packs Built\", \"col\": 3}}, {\"id\": \"67dd8fa9d1\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Packs In Stock\", \"col\": 3}}, {\"id\": \"d37dd1e049\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Packs Dispatched\", \"col\": 3}}, {\"id\": \"5ec90205b7\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Orders To Pick\", \"col\": 3}}, {\"id\": \"025d2c97cd\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Cells In Stores\", \"col\": 3}}, {\"id\": \"e542ee5f9f\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"BMS In Stores\", \"col\": 3}}, {\"id\": \"d7da51d069\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Scans Today\", \"col\": 3}}, {\"id\": \"f1342d0cb6\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Scan Errors Today\", \"col\": 3}}, {\"id\": \"baba72779f\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>\\ud83d\\udcc8 Charts</b></span>\", \"col\": 12}}, {\"id\": \"02be806a32\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Daily Scans\", \"col\": 8}}, {\"id\": \"9ca12217b3\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Scan Results\", \"col\": 4}}, {\"id\": \"af4983b38e\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Packs Built Per Week\", \"col\": 8}}, {\"id\": \"1f01855ea9\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Pack Status\", \"col\": 4}}, {\"id\": \"6ea8a32af8\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Scans By User\", \"col\": 6}}, {\"id\": \"ccb1bf00fa\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Cell Status\", \"col\": 6}}, {\"id\": \"2be3857667\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>\\u26a1 Quick Access</b></span>\", \"col\": 12}}, {\"id\": \"7d19c47e54\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Battery Trace\", \"col\": 3}}, {\"id\": \"72f4427d89\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Pack Traceability\", \"col\": 3}}, {\"id\": \"6d5fe2fe08\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Scan Log\", \"col\": 3}}, {\"id\": \"ef0586cc45\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Sales Order\", \"col\": 3}}, {\"id\": \"9bcd95831b\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"New Work Order\", \"col\": 3}}, {\"id\": \"60fa7bbeb8\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Delivery Note\", \"col\": 3}}, {\"id\": \"201914b712\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Serial No\", \"col\": 3}}, {\"id\": \"a433c61487\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Stock Ledger\", \"col\": 3}}, {\"id\": \"5a2418229a\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>\\ud83d\\udd52 Recent Activity</b></span>\", \"col\": 12}}, {\"id\": \"748bffbb72\", \"type\": \"quick_list\", \"data\": {\"quick_list_name\": \"Recent Scan Errors\", \"col\": 6}}, {\"id\": \"3b4b38c48a\", \"type\": \"quick_list\", \"data\": {\"quick_list_name\": \"Recently Built Packs\", \"col\": 6}}, {\"id\": \"2b2a2da615\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>\\ud83d\\udcda Masters, Transactions & Reports</b></span>\", \"col\": 12}}, {\"id\": \"dc8355d676\", \"type\": \"card\", \"data\": {\"card_name\": \"Traceability\", \"col\": 4}}, {\"id\": \"566d67fbb9\", \"type\": \"card\", \"data\": {\"card_name\": \"Stock In\", \"col\": 4}}, {\"id\": \"e6b5408b68\", \"type\": \"card\", \"data\": {\"card_name\": \"Manufacturing\", \"col\": 4}}, {\"id\": \"ab19a0b7b3\", \"type\": \"card\", \"data\": {\"card_name\": \"Selling & Dispatch\", \"col\": 4}}, {\"id\": \"6ff6a5a5ad\", \"type\": \"card\", \"data\": {\"card_name\": \"Stock Reports\", \"col\": 4}}]",
+ "creation": "2026-11-21 02:34:54.774882",
+ "custom_blocks": [
+  {
+   "custom_block_name": "Battery Track Hero",
+   "label": "Battery Track Hero"
+  }
+ ],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "hide_custom": 0,
+ "icon": "stock",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Battery Track",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Traceability",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Battery Trace",
+   "link_count": 0,
+   "link_to": "Battery Trace",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Pack Traceability",
+   "link_count": 0,
+   "link_to": "Pack Traceability",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Scan Log",
+   "link_count": 0,
+   "link_to": "Scan Log",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Stock In",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Receipt",
+   "link_count": 0,
+   "link_to": "Purchase Receipt",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Supplier",
+   "link_count": 0,
+   "link_to": "Supplier",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Item",
+   "link_count": 0,
+   "link_to": "Item",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Manufacturing",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "BOM",
+   "link_count": 0,
+   "link_to": "BOM",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Work Order",
+   "link_count": 0,
+   "link_to": "Work Order",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Stock Entry",
+   "link_count": 0,
+   "link_to": "Stock Entry",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Selling & Dispatch",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sales Order",
+   "link_count": 0,
+   "link_to": "Sales Order",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Delivery Note",
+   "link_count": 0,
+   "link_to": "Delivery Note",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Customer",
+   "link_count": 0,
+   "link_to": "Customer",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Stock Reports",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Stock Balance",
+   "link_count": 0,
+   "link_to": "Stock Balance",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Stock Ledger",
+   "link_count": 0,
+   "link_to": "Stock Ledger",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Serial No Ledger",
+   "link_count": 0,
+   "link_to": "Serial No Ledger",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Serial and Batch Summary",
+   "link_count": 0,
+   "link_to": "Serial and Batch Summary",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-11-21 02:36:38.412167",
+ "modified_by": "Administrator",
+ "module": "Battery Track",
+ "name": "Battery Track",
+ "number_cards": [
+  {
+   "label": "Packs Built",
+   "number_card_name": "Packs Built"
+  },
+  {
+   "label": "Packs In Stock",
+   "number_card_name": "Packs In Stock"
+  },
+  {
+   "label": "Packs Dispatched",
+   "number_card_name": "Packs Dispatched"
+  },
+  {
+   "label": "Orders To Pick",
+   "number_card_name": "Orders To Pick"
+  },
+  {
+   "label": "Cells In Stores",
+   "number_card_name": "Cells In Stores"
+  },
+  {
+   "label": "BMS In Stores",
+   "number_card_name": "BMS In Stores"
+  },
+  {
+   "label": "Scans Today",
+   "number_card_name": "Scans Today"
+  },
+  {
+   "label": "Scan Errors Today",
+   "number_card_name": "Scan Errors Today"
+  }
+ ],
+ "owner": "Administrator",
+ "public": 1,
+ "quick_lists": [
+  {
+   "document_type": "Scan Log",
+   "label": "Recent Scan Errors",
+   "quick_list_filter": "[[\"Scan Log\", \"result\", \"=\", \"Error\", false]]"
+  },
+  {
+   "document_type": "Pack Traceability",
+   "label": "Recently Built Packs",
+   "quick_list_filter": "[]"
+  }
+ ],
+ "roles": [],
+ "sequence_id": 1.0,
+ "shortcuts": [
+  {
+   "color": "Green",
+   "doc_view": "",
+   "label": "Battery Trace",
+   "link_to": "Battery Trace",
+   "report_ref_doctype": "Pack Traceability",
+   "type": "Report"
+  },
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "label": "Pack Traceability",
+   "link_to": "Pack Traceability",
+   "type": "DocType"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "format": "{} Errors",
+   "label": "Scan Log",
+   "link_to": "Scan Log",
+   "stats_filter": "{\"result\": \"Error\"}",
+   "type": "DocType"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "List",
+   "format": "{} To Pick",
+   "label": "Sales Order",
+   "link_to": "Sales Order",
+   "stats_filter": "{\"docstatus\": 1, \"status\": [\"in\", [\"To Deliver and Bill\", \"To Deliver\"]]}",
+   "type": "DocType"
+  },
+  {
+   "color": "Purple",
+   "doc_view": "New",
+   "label": "New Work Order",
+   "link_to": "Work Order",
+   "type": "DocType"
+  },
+  {
+   "color": "Cyan",
+   "doc_view": "List",
+   "label": "Delivery Note",
+   "link_to": "Delivery Note",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "format": "{} Packs Active",
+   "label": "Serial No",
+   "link_to": "Serial No",
+   "stats_filter": "{\"item_code\": \"PACK-48V\", \"status\": \"Active\"}",
+   "type": "DocType"
+  },
+  {
+   "color": "Yellow",
+   "doc_view": "",
+   "label": "Stock Ledger",
+   "link_to": "Stock Ledger",
+   "report_ref_doctype": "Stock Ledger Entry",
+   "type": "Report"
+  }
+ ],
+ "title": "Battery Track"
+}

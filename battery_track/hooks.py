@@ -158,6 +158,8 @@ app_license = "mit"
 # (battery_track/fixtures/custom_field.json) and re-created on any site where the app is installed.
 fixtures = [
 	{"dt": "Custom Field", "filters": [["module", "=", "Battery Track"]]},
+	# workspace hero banner (Custom HTML Block has no "module" field, so it can't be exported as standard)
+	{"dt": "Custom HTML Block", "filters": [["name", "=", "Battery Track Hero"]]},
 ]
 
 doc_events = {
