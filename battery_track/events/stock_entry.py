@@ -27,7 +27,21 @@ def get_row_serials(row):
 		return get_serial_nos(row.serial_and_batch_bundle)
 	if row.serial_no:
 		return row.serial_no.split("\n")
-	return []
+
+	# Serial left empty in the form: on submit ERPNext auto-creates the serials (from the item's
+	# series, e.g. PACK-0003) or auto-picks them (FIFO for cells). It links that bundle to the
+	# Stock Ledger Entry, not to our in-memory row, so look it up by the row's name.
+	bundle = frappe.db.get_value(
+		"Serial and Batch Bundle",
+		{
+			"voucher_type": row.parenttype,
+			"voucher_no": row.parent,
+			"voucher_detail_no": row.name,  # this exact row
+			"is_cancelled": 0,
+		},
+		"name",
+	)
+	return get_serial_nos(bundle) if bundle else []
 
 
 def get_finished_pack_rows(doc):
@@ -67,7 +81,12 @@ def on_submit(doc, method=None):
 		return  # finished item has no serial no, nothing to trace
 
 	pack_row = pack_rows[0]  # before_submit already made sure qty is 1
-	pack_serial = get_row_serials(pack_row)[0]
+	pack_serials = get_row_serials(pack_row)
+	if not pack_serials:
+		# never crash with IndexError: tell the user what is missing
+		frappe.throw(_("Row {0}: no serial number found for {1}. Enter it in the Serial No field.").format(
+			pack_row.idx, pack_row.item_code))
+	pack_serial = pack_serials[0]
 
 	# collect cell and BMS serials from the raw material rows (rows that go OUT of a warehouse)
 	cell_serials = []
@@ -78,7 +97,8 @@ def on_submit(doc, method=None):
 		if row.item_code == CELL_ITEM:
 			cell_serials.extend(get_row_serials(row))
 		elif row.item_code == BMS_ITEM:
-			bms_serial = get_row_serials(row)[0]
+			bms_serials = get_row_serials(row)
+			bms_serial = bms_serials[0] if bms_serials else None
 
 	trace = frappe.get_doc(
 		{
