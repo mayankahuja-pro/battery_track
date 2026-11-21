@@ -154,6 +154,11 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
+# Functions print formats can call, e.g. {{ qr_code_data_uri(doc.name) }}
+jinja = {
+	"methods": ["battery_track.jinja_helpers.qr_code_data_uri"],
+}
+
 # Fixtures: custom fields we add to ERPNext doctypes are exported into the app
 # (battery_track/fixtures/custom_field.json) and re-created on any site where the app is installed.
 fixtures = [
