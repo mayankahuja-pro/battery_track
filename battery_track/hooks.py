@@ -8,7 +8,9 @@ app_license = "mit"
 # Apps
 # ------------------
 
-# required_apps = []
+# ERPNext must be installed first: our custom field and hooks use Sales Order, Stock Entry, Delivery Note.
+# (frappe is always there; QR codes use pyqrcode, which ships with frappe, so no extra app is needed)
+required_apps = ["erpnext"]
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
