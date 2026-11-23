@@ -358,3 +358,66 @@ def pick_raw_material_serials(se):
 				pluck="name",
 			)
 		)
+
+
+# ---------------------------------------------------------------------------
+# 5. QR codes of the packs for a Delivery Note (Delivery Note form -> "Pack QR Codes")
+# ---------------------------------------------------------------------------
+@frappe.whitelist()  # GET is fine: this only reads data
+def get_pack_qr_codes(delivery_note):
+	"""For every serialised row: the packs already scanned + the packs still to scan (FIFO from the rack).
+
+	Each pack comes with a QR image (data URI), so the picker can scan it from the screen or a printout.
+	Returns {"orders": [{"sales_order", "qr"}], "rows": [{"idx", "item_code", "qty", "sales_order", "packs": [...]}]}
+	"""
+	from battery_track.events.delivery_note import get_scanned_serials, is_serialised
+	from battery_track.jinja_helpers import qr_code_data_uri
+
+	dn = frappe.get_doc("Delivery Note", delivery_note)
+	dn.check_permission("read")  # same rule as opening the form
+
+	# serials already scanned for ANY order: scan_pack would reject them, so never suggest them
+	taken = frappe.get_all("Scan Log", filters={"result": "Success"}, pluck="serial_no")
+
+	rows, orders = [], []
+	for row in dn.items:
+		if not row.against_sales_order or not is_serialised(row.item_code):
+			continue  # casing etc.: no serial, nothing to scan
+
+		scanned = get_scanned_serials(row.against_sales_order, row.item_code)
+		still_needed = max(cint(row.qty) - len(scanned), 0)
+
+		# FIFO: oldest active packs in the row's warehouse, not scanned for anyone yet
+		to_scan = []
+		if still_needed:
+			to_scan = frappe.get_all(
+				"Serial No",
+				filters={
+					"item_code": row.item_code,
+					"status": "Active",
+					"warehouse": row.warehouse,
+					"name": ["not in", taken or [""]],  # [""] because "not in ()" is invalid SQL
+				},
+				pluck="name",
+				order_by="creation asc",
+				limit=still_needed,
+			)
+
+		packs = [{"serial_no": s, "scanned": 1, "qr": qr_code_data_uri(s, 4)} for s in scanned[: cint(row.qty)]]
+		packs += [{"serial_no": s, "scanned": 0, "qr": qr_code_data_uri(s, 4)} for s in to_scan]
+
+		rows.append(
+			{
+				"idx": row.idx,
+				"item_code": row.item_code,
+				"qty": cint(row.qty),
+				"warehouse": row.warehouse,
+				"sales_order": row.against_sales_order,
+				"short": still_needed - len(to_scan),  # > 0 means not enough packs on the rack
+				"packs": packs,
+			}
+		)
+		if row.against_sales_order not in [o["sales_order"] for o in orders]:
+			orders.append({"sales_order": row.against_sales_order, "qr": qr_code_data_uri(row.against_sales_order, 4)})
+
+	return {"orders": orders, "rows": rows}
