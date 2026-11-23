@@ -12,7 +12,9 @@ from frappe import _
 from frappe.auth import validate_ip_address
 from frappe.rate_limiter import rate_limit
 from frappe.twofactor import should_run_2fa
-from frappe.utils import add_days, now_datetime, nowdate
+from frappe.utils import add_days, cint, flt, now_datetime, nowdate
+
+from erpnext.manufacturing.doctype.work_order.work_order import make_stock_entry
 
 from battery_track.setup.test_data import COMPANY, FINISHED_GOODS
 
@@ -260,3 +262,99 @@ def log_scan(sales_order, serial_no, item_code, ok, message):
 			"scanned_at": now_datetime(),
 		}
 	).insert()
+
+
+# ---------------------------------------------------------------------------
+# 4. Build N packs from a Work Order (one click, one Manufacture entry PER pack)
+# ---------------------------------------------------------------------------
+MAX_PACKS_PER_CLICK = 20  # keeps one request short; bigger runs = click again
+
+
+@frappe.whitelist(methods=["POST"])
+def build_packs(work_order, count):
+	"""Build `count` packs: makes `count` separate Manufacture entries (qty 1 each).
+
+	Why not one entry with qty 10? Then we can't know which 16 cells went into which pack.
+	All-or-nothing: if pack 7 fails, the whole request rolls back and no pack is built.
+	"""
+	count = cint(count)
+	frappe.has_permission("Stock Entry", "submit", throw=True)
+	wo = frappe.get_doc("Work Order", work_order)
+	wo.check_permission("read")
+
+	if wo.docstatus != 1:
+		frappe.throw(_("Submit the Work Order first"))
+	if wo.status in ("Stopped", "Closed"):
+		frappe.throw(_("Work Order {0} is {1}").format(wo.name, wo.status))
+
+	remaining = cint(flt(wo.qty) - flt(wo.produced_qty))
+	if count < 1 or count > MAX_PACKS_PER_CLICK:
+		frappe.throw(_("Build between 1 and {0} packs per click").format(MAX_PACKS_PER_CLICK))
+	if count > remaining:
+		frappe.throw(_("Only {0} packs are left to build on {1}").format(remaining, wo.name))
+
+	check_stock_for_packs(wo, count)  # clear error BEFORE we start, instead of failing at pack 7
+
+	packs = []
+	for _i in range(count):
+		# ERPNext's own "Finish" logic: fills raw materials + finished pack for qty 1
+		se = frappe.get_doc(make_stock_entry(wo.name, "Manufacture", qty=1))
+		pick_raw_material_serials(se)
+		se.insert()
+		se.submit()  # our on_submit hook (events/stock_entry.py) creates Pack Traceability
+		pack = frappe.db.get_value("Pack Traceability", {"stock_entry": se.name}, "name")
+		packs.append(pack or se.name)
+
+	return {
+		"ok": True,
+		"packs": packs,
+		"message": _("{0} packs built: {1}").format(len(packs), ", ".join(packs)),
+	}
+
+
+def check_stock_for_packs(wo, count):
+	"""Is there enough raw material for `count` packs? Tell the user exactly what is short."""
+	short = []
+	for row in wo.required_items:
+		per_pack = flt(row.required_qty) / flt(wo.qty)  # e.g. 16 cells per pack
+		needed = per_pack * count
+		warehouse = row.source_warehouse or wo.source_warehouse
+
+		if frappe.get_cached_value("Item", row.item_code, "has_serial_no"):
+			# serialised: count the serials that are really on the shelf
+			available = frappe.db.count(
+				"Serial No", {"item_code": row.item_code, "warehouse": warehouse, "status": "Active"}
+			)
+		else:
+			available = flt(frappe.db.get_value("Bin", {"item_code": row.item_code, "warehouse": warehouse}, "actual_qty"))
+
+		if available < needed:
+			short.append(_("{0}: need {1:g}, have {2:g}").format(row.item_code, needed, flt(available)))
+
+	if short:
+		frappe.throw(_("Not enough stock for {0} packs.<br>{1}").format(count, "<br>".join(short)))
+
+
+def pick_raw_material_serials(se):
+	"""Fill serials on raw material rows, oldest first (FIFO), so we control exactly which cells go in.
+
+	Each entry is submitted before the next one is made, so used serials are no longer
+	"Active" and the next pack automatically gets the next 16 cells.
+	The finished pack row stays empty: ERPNext creates PACK-#### from the item's series on submit.
+	"""
+	for row in se.items:
+		if not row.s_warehouse or row.serial_no:
+			continue  # finished good, or serials already filled
+		if not frappe.get_cached_value("Item", row.item_code, "has_serial_no"):
+			continue  # e.g. casing: no serial
+
+		row.use_serial_batch_fields = 1  # use the simple "Serial No" text field on this row
+		row.serial_no = "\n".join(
+			frappe.get_all(
+				"Serial No",
+				filters={"item_code": row.item_code, "warehouse": row.s_warehouse, "status": "Active"},
+				order_by="creation asc, name asc",  # FIFO: oldest received first
+				limit=cint(row.qty),
+				pluck="name",
+			)
+		)
