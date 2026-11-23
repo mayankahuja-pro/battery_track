@@ -27,8 +27,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   // Server address is fixed when the app is BUILT, so warehouse staff never type it:
   //   flutter build apk --dart-define=ERP_URL=https://erp.arb.com
-  // Without --dart-define we use the local dev server.
-  static const _defaultUrl = String.fromEnvironment('ERP_URL', defaultValue: 'http://arb.localhost:8000');
+  // Without --dart-define we use the live Frappe Cloud site.
+  static const _defaultUrl = String.fromEnvironment('ERP_URL', defaultValue: 'https://mayankahuja.frappe.cloud');
 
   final _url = TextEditingController(text: _defaultUrl);
   bool _editServer = false; // URL box stays hidden unless someone taps "Change"
